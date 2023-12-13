@@ -6,7 +6,6 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  // トークナイズする
   user_input = argv[1];
   token = tokenize();
   Node *node = expr();
