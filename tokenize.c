@@ -81,7 +81,7 @@ bool startswith(char *p, char *q) {
   return memcmp(p, q, strlen(q)) == 0;
 }
 
-// 入力文字列pをトークナイズしてそれを返す
+// 入力文字列をトークナイズして先頭のトークンを返す
 Token *tokenize() {
   char *p = user_input;
 
@@ -103,7 +103,7 @@ Token *tokenize() {
       continue;
     }
 
-    if (strchr("+-*/()<>", *p)) {
+    if (strchr("+-*/()<>;", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }

@@ -31,6 +31,7 @@ void error_at(char *loc, char *fmt, ...);
 bool consume(char *op);
 void expect(char *op);
 int expect_number();
+bool at_eof();
 bool startswith(char *p, char *q);
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 Token *tokenize();
@@ -62,12 +63,13 @@ struct Node {
   Node *lhs;      // 左辺
   Node *rhs;      // 右辺
   int val;        // kindがND_NUMの場合のみ使う
-  char *str;      // トークン文字列
-  int len;        // トークンの長さ
 };
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
-Node *new_node_num(int val);
+Node *new_node(NodeKind kind);
+Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
+Node *new_num(int val);
+
+Node *stmt();
 Node *expr();
 Node *equality();
 Node *relational();
@@ -76,9 +78,13 @@ Node *mul();
 Node *unary();
 Node *primary();
 
+void program();
+
+extern Node *code[100];
+
 //
 // codegen.c
 //
 
 void gen(Node *node);
-void codegen(Node *node);
+void codegen();
