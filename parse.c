@@ -16,6 +16,11 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
 Node *new_num(int val) {
   Node *node = new_node(ND_NUM);
   node->val = val;
+}
+
+Node *new_lvar(char name) {
+  Node *node = new_node(ND_LVAR);
+  node->offset = (name - 'a' + 1) * 8;
   return node;
 }
 
@@ -26,7 +31,15 @@ Node *stmt() {
 }
 
 Node *expr() {
-  return equality();
+  return assign();
+}
+
+Node *assign() {
+  Node *node = equality();
+  if (consume("=")) {
+    node = new_binary(ND_ASSIGN, node, assign());
+  }
+  return node;
 }
 
 Node *equality() {
@@ -106,10 +119,16 @@ Node *primary() {
     return node;
   }
 
+  Token *tok = consume_ident();
+  if (tok) {
+    return new_lvar(*tok->str);
+  }  
+
   // そうでなければ数値のはず
   return new_num(expect_number());
 }
 
+// 抽象構文木を文ごとに要素として格納
 Node *code[100];
 
 void program() {
@@ -118,5 +137,4 @@ void program() {
       code[i++] = stmt();
   }
   code[i] = NULL;
-  return code;
 }
