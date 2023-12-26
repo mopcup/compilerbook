@@ -35,6 +35,8 @@ void expect(char *op);
 int expect_number();
 bool at_eof();
 bool startswith(char *p, char *q);
+bool is_alpha(char c);
+bool is_alnum(char c);
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 Token *tokenize();
 
@@ -70,11 +72,21 @@ struct Node {
   int offset;     // kindがND_LVARの場合のみ使う
 };
 
+// ローカル変数型
+typedef struct LVar LVar;
+struct LVar {
+  LVar *next; // 次の変数かNULL
+  char *name; // 変数の名前
+  int len;    // 名前の長さ
+  int offset; // RBPからのオフセット
+};
+
 Node *new_node(NodeKind kind);
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_num(int val);
-Node *new_lvar(char name);
+LVar *find_lvar(Token *tok);
 
+void program();
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -85,9 +97,8 @@ Node *mul();
 Node *unary();
 Node *primary();
 
-void program();
-
 extern Node *code[100];
+extern LVar *locals;
 
 //
 // codegen.c

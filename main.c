@@ -8,6 +8,11 @@ int main(int argc, char **argv) {
 
   user_input = argv[1];
   token = tokenize();
+
+  locals = calloc(1, sizeof(LVar));
+  locals->next = NULL;
+  locals->offset = 0;
+
   program();
   codegen();
 

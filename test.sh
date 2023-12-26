@@ -49,4 +49,7 @@ assert 32 "a = 11; b = 32; b;"
 assert 43 "a = 11; b = 32; a+b;"
 assert 3 "a = 11; b = a = 3; a;"
 
+assert 5 "abc = 2; foo_2 = 4; abc + 3;"
+assert 10 "abc = 2; foo_2 = 4; foo_2 + 6;"
+
 echo OK

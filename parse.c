@@ -1,5 +1,11 @@
 #include "9cc.h"
 
+// 抽象構文木を文ごとに要素として格納
+Node *code[100];
+
+// ローカル変数のリスト
+LVar *locals;
+
 Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -18,10 +24,21 @@ Node *new_num(int val) {
   node->val = val;
 }
 
-Node *new_lvar(char name) {
-  Node *node = new_node(ND_LVAR);
-  node->offset = (name - 'a' + 1) * 8;
-  return node;
+LVar *find_lvar(Token *tok) {
+  for (LVar *var = locals; var; var = var->next) {
+    if (var->len == tok->len && memcmp(tok->str, var->name, var->len) == 0) {
+      return var;
+    }
+  }
+  return NULL;
+}
+
+void program() {
+  int i = 0;
+  while (!at_eof()) {
+      code[i++] = stmt();
+  }
+  code[i] = NULL;
 }
 
 Node *stmt() {
@@ -121,20 +138,22 @@ Node *primary() {
 
   Token *tok = consume_ident();
   if (tok) {
-    return new_lvar(*tok->str);
-  }  
+    Node *node = new_node(ND_LVAR);
+    LVar *lvar = find_lvar(tok);
+    if (lvar) {
+      node->offset = lvar->offset;
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+      lvar->offset = locals->offset + 8;
+      node->offset = lvar->offset;
+      locals = lvar;
+    }
+    return node;
+  }
 
   // そうでなければ数値のはず
   return new_num(expect_number());
-}
-
-// 抽象構文木を文ごとに要素として格納
-Node *code[100];
-
-void program() {
-  int i = 0;
-  while (!at_eof()) {
-      code[i++] = stmt();
-  }
-  code[i] = NULL;
 }
